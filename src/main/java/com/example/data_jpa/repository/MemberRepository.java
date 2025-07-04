@@ -3,6 +3,7 @@ package com.example.data_jpa.repository;
 import com.example.data_jpa.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -29,4 +30,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
      */
     // @Query(name = "Member.findByUsername")
     List<Member> findByUsername(String username);
+
+    /**
+     * 이름 없는 Named 쿼리
+     * - 실행할 메서드에 정적 쿼리를 직접 작성
+     * - JPA Named 쿼리처럼 애플리케이션 실행 시점에 문법 오류를 발견할 수 있음(매우 큰 장점!)
+     */
+    @Query("select m from Member m where m.username= :username and m.age = :age")
+    List<Member> findUser(@Param("username") String username, @Param("age") int age);
+
 }
