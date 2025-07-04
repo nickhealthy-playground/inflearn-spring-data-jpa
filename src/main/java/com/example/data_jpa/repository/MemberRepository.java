@@ -1,5 +1,6 @@
 package com.example.data_jpa.repository;
 
+import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,4 +40,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Query("select m from Member m where m.username= :username and m.age = :age")
     List<Member> findUser(@Param("username") String username, @Param("age") int age);
 
+    // 단순히 값 하나를 조회
+    @Query("select m.username from Member m")
+    List<String> findUsernamesList();
+
+    // DTO로 직접 조회
+    @Query("select new com.example.data_jpa.dto.MemberDto(m.id, m.username, t.name) from Member m join m.team t")
+    List<MemberDto> findMemberDto();
 }

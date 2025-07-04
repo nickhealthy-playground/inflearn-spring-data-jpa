@@ -1,6 +1,8 @@
 package com.example.data_jpa.repository;
 
+import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
+import com.example.data_jpa.entity.Team;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +20,8 @@ class MemberRepositoryTest {
 
     @Autowired
     MemberRepository memberRepository;
+    @Autowired
+    private TeamRepository teamRepository;
 
     @Test
     public void testMember() {
@@ -141,6 +145,36 @@ class MemberRepositoryTest {
         assertThat(aaa.size()).isEqualTo(1);
         assertThat(aaa.get(0).getUsername()).isEqualTo("AAA");
         assertThat(aaa.get(0).getAge()).isEqualTo(20);
+    }
+
+    // 단순히 값 하나를 조회
+    @Test
+    void findUsernamesList() {
+        Member member1 = new Member("AAA");
+        Member member2 = new Member("BBB");
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        List<String> usernamesList = memberRepository.findUsernamesList();
+        for (String s : usernamesList) {
+            System.out.println("s = " + s);
+        }
+    }
+
+    // DTO로 직접 조회
+    @Test
+    void findMemberDto() {
+        Team teamA = new Team("teamA");
+        teamRepository.save(teamA);
+
+        Member member = new Member("AAA");
+        member.changeTeam(teamA);
+        memberRepository.save(member);
+
+        List<MemberDto> memberDto = memberRepository.findMemberDto();
+        for (MemberDto dto : memberDto) {
+            System.out.println("dto = " + dto);
+        }
     }
 
 }
