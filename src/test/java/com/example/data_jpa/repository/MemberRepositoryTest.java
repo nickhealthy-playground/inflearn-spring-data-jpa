@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -191,6 +192,32 @@ class MemberRepositoryTest {
         for (Member byName : byNames) {
             System.out.println("byName = " + byName);
         }
+    }
+
+    /**
+     * JPA vs Spring DATA JPA
+     * JPA
+     * - JPA에서는 단건 조회(getSingleResult) 시 조회가 되지 않으면 javax.persistence.NonUniqueResultException 발생
+     * Spring DATA JPA
+     * - 단건 조회 시 조회 되지 않으면 NULL 반환
+     * - 에러 발생 시 Spring 에러로 감싸서 반환해줌
+     */
+    @Test
+    void returnType() {
+        Member member = new Member("AAA");
+        memberRepository.save(member);
+
+        // 리스트로 조회
+        List<Member> aaa = memberRepository.findListByUsername("AAA");
+        System.out.println("aaa = " + aaa);
+
+        // 단건 조회
+        Member m1 = memberRepository.findMemberByUsername("AAA");
+        System.out.println("m1 = " + m1);
+
+        // Optional 조회
+        Optional<Member> m2 = memberRepository.findOptionalByUsername("AAA");
+        System.out.println("m2 = " + m2);
     }
 
 }
