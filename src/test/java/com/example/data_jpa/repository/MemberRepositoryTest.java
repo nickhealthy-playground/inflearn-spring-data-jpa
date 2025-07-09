@@ -6,6 +6,10 @@ import com.example.data_jpa.entity.Team;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -218,6 +222,48 @@ class MemberRepositoryTest {
         // Optional 조회
         Optional<Member> m2 = memberRepository.findOptionalByUsername("AAA");
         System.out.println("m2 = " + m2);
+    }
+
+    /**
+     * 페이징 조건과 정렬 조건 설정
+     * - 정렬 조건: 이름으로 내림차순
+     * - 페이징 조건: 첫 번째 페이지, 페이지당 보여줄 데이터는 3건
+     */
+    @Test
+    void page() {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 10));
+        memberRepository.save(new Member("member3", 10));
+        memberRepository.save(new Member("member4", 10));
+        memberRepository.save(new Member("member5", 10));
+
+        //when
+
+        /*
+        * 다양한 반환 타입 지원
+        * - Page: 페이징 처리(count 쿼리가 자동으로 발생)
+        * - Slice: 지정한 컨텐츠 개수 + 1 데이터만큼 가져옴(count 쿼리를 날리지 않고, 추가 데이터가 존재할 수 있는지 파악하는 용도)
+        *   - 주로 '더보기..' 기능을 구현할 때 사용
+        * - List: 지정한 컨텐츠 개수만 가져옴
+        * */
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+        Page<Member> page = memberRepository.findByAge(10, pageRequest);
+//        Slice<Member> page = memberRepository.findByAge(10, pageRequest);
+//        List<Member> page = memberRepository.findByAge(10, pageRequest);
+
+        // DTO로 변환(엔티티로 반환하면 안되므로 DTO로 변환 필요)
+        Page<MemberDto> toMap = page.map(m -> new MemberDto(m.getId(), m.getUsername(), null));
+        System.out.println("toMap = " + toMap);
+
+        //then
+        List<Member> content = page.getContent();
+        assertThat(content.size()).isEqualTo(3); // 조회된 데이터 수
+        assertThat(page.getNumber()).isEqualTo(0); // 현재 페이지
+        assertThat(page.getTotalPages()).isEqualTo(2); // 총 페이지 수
+        assertThat(page.getTotalElements()).isEqualTo(5); // 총 데이터 개수
+        assertThat(page.isFirst()).isTrue(); // 첫 번째 페이지 확인
+        assertThat(page.hasNext()).isTrue(); // 다음 페이지 존재 확인
     }
 
 }

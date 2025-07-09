@@ -2,6 +2,9 @@ package com.example.data_jpa.repository;
 
 import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -58,4 +61,14 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     List<Member> findListByUsername(String name); //컬렉션
     Member findMemberByUsername(String name); //단건
     Optional<Member> findOptionalByUsername(String name); //단건 Optional
+
+    /**
+     * 페이징 처리(다양한 반환 타입 지원)
+     * @Query: count 쿼리 분리 가능 -> join이 있어도 count 개수가 변함없는 경우 join 없이 카운터 하는 것이 성능상 유리하므로 카운트 쿼리를 최적화함
+     */
+//    @Query(value = "select m from Member m left join m.team t",
+//            countQuery = "select count(m.username) from Member m")
+    Page<Member> findByAge(int age, Pageable pageable);
+//    Slice<Member> findByAge(int age, Pageable pageable);
+//    List<Member> findByAge(int age, Pageable pageable);
 }
