@@ -266,4 +266,30 @@ class MemberRepositoryTest {
         assertThat(page.hasNext()).isTrue(); // 다음 페이지 존재 확인
     }
 
+    /**
+     * Spring DATA JPA 사용한 벌크성 수정 쿼리 테스트
+     * @Modifying 어노테이션 사용 필요
+     * - 필요시 영속성 컨텍스트 초기화 옵션(clearAutomatically) 사용 설정
+     * <중요>JPA 벌크성 쿼리 시 주의점
+     * - JPA는 기본적으로 영속성 컨텍스트를 사용하기 때문에 벌크성 연산처럼 영속성 컨텍스트를 거치지 않고,
+     * - DB에 직접 import하는 경우 데이터 정합성 문제 가능성 존재함
+     * - 따라서 벌크 연산 이후 추가 작업이 필요한 경우 영속성 컨텍스트를 초기화 후 영속 데이터를 다뤄야 함.
+     */
+    @Test
+    void bulkUpdate() {
+        // given
+        memberRepository.save(new Member("member1", 10));
+        memberRepository.save(new Member("member2", 19));
+        memberRepository.save(new Member("member3", 20));
+        memberRepository.save(new Member("member4", 21));
+        memberRepository.save(new Member("member5", 40));
+
+        // when
+        int resultCount = memberRepository.bulkAgePlus(20);
+
+        // then
+        assertThat(resultCount).isEqualTo(3);
+    }
+
+
 }
