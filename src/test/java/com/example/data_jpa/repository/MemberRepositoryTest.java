@@ -371,4 +371,9 @@ class MemberRepositoryTest {
         System.out.println("page.getTotalPages() = " + page.getTotalPages());
     }
 
+    @Test
+    void memberRepositoryCustom() {
+        List<Member> memberCustom = memberRepository.findMemberCustom(); // MemberRepositoryImpl에 구현된 메서드 호출됨
+    }
+
 }
