@@ -3,6 +3,8 @@ package com.example.data_jpa.repository;
 import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
 import com.example.data_jpa.entity.Team;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,6 +30,8 @@ class MemberRepositoryTest {
     MemberRepository memberRepository;
     @Autowired
     private TeamRepository teamRepository;
+    @PersistenceContext
+    EntityManager em;
 
     @Test
     public void testMember() {
@@ -291,5 +295,39 @@ class MemberRepositoryTest {
         assertThat(resultCount).isEqualTo(3);
     }
 
+    @Test
+    void findMembers() {
+        //given
+        //member1 -> teamA
+        //member2 -> teamB
+        Team teamA = new Team("teamA");
+        Team teamB = new Team("teamB");
+        teamRepository.save(teamA);
+        teamRepository.save(teamB);
+
+        Member member1 = new Member("member1");
+        Member member2 = new Member("member1");
+        member1.changeTeam(teamA);
+        member2.changeTeam(teamB);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        List<Member> members = memberRepository.findMemberNamedEntityGraph();
+//        List<Member> members = memberRepository.findAll();
+//        List<Member> members = memberRepository.findMemberEntityGraph();
+//        List<Member> members = memberRepository.findEntityGraphByUsername("member1");
+
+        //then
+        for (Member member : members) {
+            System.out.println("member = " + member);
+            System.out.println("member.getTeam().getName() = " + member.getTeam().getName());
+        }
+
+
+    }
 
 }

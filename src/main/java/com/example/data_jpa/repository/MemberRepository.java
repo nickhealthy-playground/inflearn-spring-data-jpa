@@ -2,9 +2,11 @@ package com.example.data_jpa.repository;
 
 import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -82,4 +84,28 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @Modifying(clearAutomatically = true)
     @Query("update Member m set m.age = m.age + 1 where m.age >= :age")
     int bulkAgePlus(@Param("age") int age);
+
+    /**
+     * EntityGraph
+     * 사실상 페치 조인(FETCH JOIN)의 간편 버전
+     * LEFT OUTER JOIN 사용
+     */
+    // 공통 메서드 오버라이딩
+    @Override
+    @EntityGraph(attributePaths = ("team"))
+    List<Member> findAll();
+
+    // JPQL + 엔티티 그래프
+    @EntityGraph(attributePaths = {"team"})
+    @Query("select m from Member m left join fetch m.team t")
+    List<Member> findMemberEntityGraph();
+
+    // 메서드 이름으로 쿼리
+    @EntityGraph(attributePaths = {"team"})
+    List<Member> findEntityGraphByUsername(@Param("username") String username);
+
+    // JPA 표준 - @NamedEntityGraph
+    @EntityGraph(value = "Member.all")
+    @Query("select m from Member m")
+    List<Member> findMemberNamedEntityGraph();
 }
