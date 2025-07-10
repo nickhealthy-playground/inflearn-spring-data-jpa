@@ -330,4 +330,45 @@ class MemberRepositoryTest {
 
     }
 
+    /**
+     * JPA 쿼리 힌트 사용
+     */
+    @Test
+    void queryHint() {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        Member member = memberRepository.findReadOnlyByUsername("member1");
+        member.setUsername("member2");
+
+        //then
+        em.flush(); // update query 실행 x
+    }
+
+    /**
+     * JPA 쿼리 힌트 Page 사용
+     */
+    @Test
+    void findQueryHintsByUsername() {
+        //given
+        memberRepository.save(new Member("member1", 10));
+        em.flush();
+        em.clear();
+
+        //when
+        PageRequest pageRequest = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "username"));
+        Page<Member> page = memberRepository.findQueryHintsByUsername("member1", pageRequest);
+
+        //then
+        em.flush();
+
+        List<Member> content = page.getContent();
+        System.out.println("content.size() = " + content.size());
+        System.out.println("page.getTotalElements() = " + page.getTotalElements());
+        System.out.println("page.getTotalPages() = " + page.getTotalPages());
+    }
+
 }

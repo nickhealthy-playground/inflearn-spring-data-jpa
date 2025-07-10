@@ -2,14 +2,12 @@ package com.example.data_jpa.repository;
 
 import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.jpa.repository.EntityGraph;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
@@ -108,4 +106,15 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     @EntityGraph(value = "Member.all")
     @Query("select m from Member m")
     List<Member> findMemberNamedEntityGraph();
+
+    /**
+     * JPA 쿼리 힌트 사용
+     * - 해당 메서드를 사용하면 엔티티를 읽기 전용으로 번경
+     */
+    @QueryHints(@QueryHint(name = "org.hibernate.readOnly", value = "true"))
+    Member findReadOnlyByUsername(String username);
+
+    @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"), forCounting = true)
+    Page<Member> findQueryHintsByUsername(String username, Pageable pageable);
+
 }
