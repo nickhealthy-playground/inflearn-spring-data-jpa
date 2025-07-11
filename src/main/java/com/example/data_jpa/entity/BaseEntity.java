@@ -23,14 +23,7 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 @Getter
-public class BaseEntity {
-
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdDate; // 등록일
-
-    @LastModifiedDate
-    private LocalDateTime lastModifiedDate; // 수정일
+public class BaseEntity extends BaseTimeEntity {
 
     @CreatedBy
     @Column(updatable = false)
