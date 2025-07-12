@@ -1,5 +1,6 @@
 package com.example.data_jpa.dto;
 
+import com.example.data_jpa.entity.Member;
 import com.example.data_jpa.entity.Team;
 import lombok.Data;
 
@@ -14,5 +15,10 @@ public class MemberDto {
         this.id = id;
         this.username = username;
         this.teamName = teamName;
+    }
+
+    public MemberDto(Member member) {
+        this.id = member.getId();
+        this.username = member.getUsername();
     }
 }

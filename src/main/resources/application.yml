@@ -11,7 +11,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
-#        show_sql: true
+        # show_sql: true
+  # 페이징과 정렬(스프링 데이터 JPA가 지원하는 MVC) - 글로벌 설정
+  data:
+    web:
+      pageable:
+        default-page-size: 20 # 기본 페이지 사이즈
+        max-page-size: 2000 # 최대 페이지 사이즈
+
 
 logging:
   level:
