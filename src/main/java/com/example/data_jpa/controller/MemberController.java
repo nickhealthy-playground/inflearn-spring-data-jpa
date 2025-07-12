@@ -4,6 +4,8 @@ import com.example.data_jpa.entity.Member;
 import com.example.data_jpa.repository.MemberRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +28,17 @@ public class MemberController {
     @GetMapping("/members2/{id}")
     public String findMember2(@PathVariable("id") Member member) {
         return member.getUsername();
+    }
+
+    /**
+     * 페이징과 정렬
+     * - 스프링 데이터 JPA가 제공하는 페이징과 정렬 기능을 스프링 MVC에서 편리하게 사용 가능
+     * - 파라미터로 Pageable 인터페이스를 받고, 스프링이 실제로 PageRequest 객체를 생성 및 설정(페이징 및 정렬)
+     */
+    @GetMapping("/members")
+    public Page<Member> findMembers(Pageable pageable) {
+        Page<Member> page = memberRepository.findAll(pageable);
+        return page;
     }
 
     @PostConstruct
