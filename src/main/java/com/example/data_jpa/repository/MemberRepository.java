@@ -3,10 +3,8 @@ package com.example.data_jpa.repository;
 import com.example.data_jpa.dto.MemberDto;
 import com.example.data_jpa.entity.Member;
 import jakarta.persistence.QueryHint;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
@@ -117,4 +115,10 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @QueryHints(value = @QueryHint(name = "org.hibernate.readOnly", value = "true"), forCounting = true)
     Page<Member> findQueryHintsByUsername(String username, Pageable pageable);
 
+    /**
+     * Projections
+     */
+    List<UsernameOnly> findProjectionsInterfaceByUsername(@Param("username") String username);
+    List<UsernameOnlyDto> findProjectionsClassByUsername(@Param("username") String username);
+    <T> List<T> findProjectionsDynamicByUsername(@Param("username") String username, Class<T> type);
 }

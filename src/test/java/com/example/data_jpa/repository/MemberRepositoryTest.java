@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
@@ -374,6 +373,56 @@ class MemberRepositoryTest {
     @Test
     void memberRepositoryCustom() {
         List<Member> memberCustom = memberRepository.findMemberCustom(); // MemberRepositoryImpl에 구현된 메서드 호출됨
+    }
+
+    /**
+     * 나머지 기능들 - Projections
+     * 1. 엔티티 대신 DTO를 편리하게 조회할 때 사용
+     * 2. 조회할 엔티티의 필드를 getter 형식으로 지정하면 해당 필드만 선택해서 조회(Projection)
+     * @See: com.example.data_jpa.repository.UsernameOnly
+     * 3. 인터페이스, 클래스 기반 Projections 생성 가능
+     * - 인터페이스 기반: 프로퍼티 형식(getter)의 인터페이스를 제공하면, 구현체는 스프링 데이터 JPA가 제공
+     * - 클래스 기반: 생성자의 파라미터 이름으로 매칭
+     */
+    @Test
+    void projections() {
+        //given
+        Team teamA = new Team("teamA");
+        em.persist(teamA);
+
+        Member m1 = new Member("m1", 0, teamA);
+        Member m2 = new Member("m2", 0, teamA);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        /*인터페이스 기반 Projections*/
+        List<UsernameOnly> findMembers1 = memberRepository.findProjectionsInterfaceByUsername("m1");
+        for (UsernameOnly findMember : findMembers1) {
+            System.out.println("findMember = " + findMember.getUsername());
+        }
+
+        /*클래스 기반 Projections*/
+        List<UsernameOnlyDto> findMembers2 = memberRepository.findProjectionsClassByUsername("m1");
+        for (UsernameOnlyDto findMember : findMembers2) {
+            System.out.println("findMember = " + findMember.getUsername());
+        }
+
+        /*동적 Projections*/
+        List<UsernameOnlyDto> dynamicProjects = memberRepository.findProjectionsDynamicByUsername("m1", UsernameOnlyDto.class);
+        for (UsernameOnlyDto dynamicProject : dynamicProjects) {
+            System.out.println("dynamicProject = " + dynamicProject.getUsername());
+        }
+
+
+        //then
+        assertThat(findMembers1.size()).isEqualTo(1);
+        assertThat(findMembers2.size()).isEqualTo(1);
+        assertThat(dynamicProjects.size()).isEqualTo(1);
+
     }
 
 }
